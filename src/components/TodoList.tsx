@@ -8,6 +8,8 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { useState, useContext, useEffect } from 'react';
+import { TodosContext } from '../contexts/todosContext';
 
 // Components
 import Todo from "./Todo"
@@ -15,36 +17,32 @@ import Todo from "./Todo"
 // Others
 import {v4 as uuidv4} from 'uuid'
 
-const todos:{
-  id: string,
-  title: string,
-  details: string,
-  isCompleted: boolean
-}[] = [
-  {
-    id: uuidv4(),
-    title: "Read a Book",
-  details: "One Book",
-  isCompleted: false
-  },
-  {
-    id: uuidv4(),
-    title: "Read a Book",
-    details: "One Book",
-    isCompleted: false
-  },
-  {
-      id: uuidv4(),
-      title: "Read a Book",
-      details: "One Book",
-      isCompleted: false
-  }
-]
 
 export default function TodoList() {
-  const uitodo = todos.map((t)=>{
-    return <Todo key={t.id} title={t.title} details={t.details}/>
+  const {todos, setTodos}: any = useContext(TodosContext)
+  const [titleInput, setTitleInput] = useState("");
+
+  const uitodo = todos.map((t: { id: string; })=>{
+    return <Todo key={t.id} todo = {t} />
   })
+  
+  useEffect(()=>{
+    const storageTodos: string | null = JSON.parse(localStorage.getItem("todos"))
+    setTodos(storageTodos)
+  }, []);
+
+  function handleAddClick(){
+    const newTodo = {
+      id: uuidv4(),
+      title: titleInput,
+      details: "",
+      isCompleted: false
+    }
+    const updateTodos = [...todos, newTodo] 
+    setTodos(updateTodos);
+    localStorage.setItem("todos", JSON.stringify(updateTodos));
+    setTitleInput("");
+  }
   return (
     <Container maxWidth="sm">
       <Card sx={{ minWidth: 275}}>
@@ -68,8 +66,8 @@ export default function TodoList() {
       {/* All todo */}
       {uitodo}
       <Grid container spacing={2} style={{marginTop: "20px"}}>
-           <Grid size={4}><Button style={{width: "100%", height: "100%", backgroundColor: "#123456"}}variant="contained">Add</Button></Grid>
-           <Grid size={8}><TextField style={{width: "100%"}} id="outlined-basic" label="Name Task" variant="outlined" /></Grid>
+           <Grid size={4}><Button style={{width: "100%", height: "100%", backgroundColor: "#123456"}} variant="contained" onClick={() => {handleAddClick()}}>Add</Button></Grid>
+           <Grid size={8}><TextField style={{width: "100%"}} id="outlined-basic" label="Name Task" variant="outlined" value={titleInput} onChange={(e) => {setTitleInput(e.target.value)}}/></Grid>
       </Grid>
       </CardContent>
     </Card>
