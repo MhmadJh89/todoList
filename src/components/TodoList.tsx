@@ -20,16 +20,36 @@ import {v4 as uuidv4} from 'uuid'
 
 export default function TodoList() {
   const {todos, setTodos}: any = useContext(TodosContext)
+  const [displayTodo, setDisplayTodo] = useState('all')  
   const [titleInput, setTitleInput] = useState("");
 
-  const uitodo = todos.map((t: { id: string; })=>{
+  const completeTodo = todos.filter((t:{isCompleted: boolean})=>{
+    return  t.isCompleted
+  })
+
+  const notCompleteTodo = todos.filter((t: {isCompleted: boolean})=>{
+    return  !t.isCompleted
+  })
+
+  let todosBeRender = todos
+  if (displayTodo == 'complete'){
+    todosBeRender = completeTodo
+  } else if (displayTodo == 'non-complete'){
+    todosBeRender = notCompleteTodo
+  }
+  const uitodo = todosBeRender.map((t: { id: string; })=>{
     return <Todo key={t.id} todo = {t} />
   })
   
+
   useEffect(()=>{
-    const storageTodos: string | null = JSON.parse(localStorage.getItem("todos"))
+    const storageTodos = JSON.parse(localStorage.getItem("todos"));
     setTodos(storageTodos)
   }, []);
+
+  function changeDisplay(e: any){
+    setDisplayTodo(e.target.value)
+  }
 
   function handleAddClick(){
     const newTodo = {
@@ -54,14 +74,14 @@ export default function TodoList() {
         <ToggleButtonGroup
          style={{marginTop: "20px"}}
           color="primary"
-          // value={alignment}
+          value={displayTodo}
           exclusive
-          // onChange={handleChange}
+          onChange={changeDisplay}
           aria-label="Platform"
          >
         <ToggleButton value="all">All</ToggleButton>
-        <ToggleButton value="done">Done</ToggleButton>
-        <ToggleButton value="wait">NDone</ToggleButton>
+        <ToggleButton value="complete">Done</ToggleButton>
+        <ToggleButton value="non-complete">NDone</ToggleButton>
       </ToggleButtonGroup>
       {/* All todo */}
       {uitodo}

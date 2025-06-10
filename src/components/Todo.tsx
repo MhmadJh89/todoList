@@ -22,6 +22,7 @@ import EditIcon from '@mui/icons-material/Edit';
 export default function Todo({todo}:any){
     const [showDeleteDialog, setShowDeleteDialog]: any = useState(false)
     const [showUpdateDialog, setShowUpdateDialog]: any = useState(false)
+    const [updateTodo, setUpdateTodo]: any = useState({title: todo.title,details: todo.details})
     const {todos, setTodos }: any = useContext(TodosContext)
 
     function handleCheckClick() {
@@ -42,6 +43,10 @@ export default function Todo({todo}:any){
     function handleCloseDelete() {
         setShowDeleteDialog(false)
     }
+
+    function handleUpdateClick() {
+        setShowUpdateDialog(true)
+    }
     function handleCloseUpdate() {
         setShowUpdateDialog(false)
     }
@@ -52,10 +57,15 @@ export default function Todo({todo}:any){
         setTodos(updateTodos);
     }
     function handleUpdateConfirm(){
-        const updateTodos = todos.filter((t: { id: string; isCompleted: boolean; }) => {
-            return t.id != todo.id
+        const updateTodos = todos.map((t: { id: string; isCompleted: boolean; }) => {
+            if (t.id == todo.id){
+                return {...t, title: updateTodo.title, details: updateTodo.details};
+            } else {
+                return t
+            }
         });
         setTodos(updateTodos);
+        setShowUpdateDialog(false)
     }
     return(
     <React.Fragment>
@@ -87,10 +97,11 @@ export default function Todo({todo}:any){
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-            {"Are you sure about delete this task ?"}
+             Update task
             </DialogTitle>
             <DialogContent>
-                <TextField autoFocus margin="dense" id="name" label="Edit Task" fullWidth variant='standard'/>
+                <TextField autoFocus margin="dense" id="name" label="Task Title" fullWidth variant='standard' value={updateTodo.title} onChange={(e)=>{ setUpdateTodo({...updateTodo, title: e.target.value })}}/>
+                <TextField autoFocus margin="dense" id="name" label="Task Detail" fullWidth variant='standard' value={updateTodo.details} onChange={(e)=>{ setUpdateTodo({...updateTodo, details: e.target.value })}}/>
             </DialogContent>
             <DialogActions>
             <Button onClick={handleCloseUpdate}>Cancle</Button>
@@ -107,8 +118,8 @@ export default function Todo({todo}:any){
             <Typography variant="h6" sx={{textAlign: "left"}}>{todo.details}</Typography>
            </Grid>
            <Grid size={4} display="flex" justifyContent="space-around" alignItems="center"> 
-           <IconButton className="iconButton" aria-label="delete" style={{color:"#b23c17", background: "white", border: "solid #b23c17 3px"}}><DeleteIcon /></IconButton>
-           <IconButton className="iconButton" aria-label="edit"  style={{color:"#1769aa", background: "white", border: "solid #1769aa 3px"}} onClick={() => {handleDeleteClick()}}><EditIcon /></IconButton>
+           <IconButton className="iconButton" aria-label="delete" style={{color:"#b23c17", background: "white", border: "solid #b23c17 3px"}} onClick={() => {handleDeleteClick()}}><DeleteIcon /></IconButton>
+           <IconButton className="iconButton" aria-label="edit"  style={{color:"#1769aa", background: "white", border: "solid #1769aa 3px"}} onClick={() => {handleUpdateClick()}}><EditIcon /></IconButton>
            <IconButton className="iconButton" aria-label="check"  style={{color: todo.isCompleted ? "white" :"#8bc34a", background: todo.isCompleted ? "#8bc34a" : "white", border: "solid #8bc34a 3px"}} onClick={() => {handleCheckClick()}}><CheckIcon /></IconButton>
            </Grid>
            
